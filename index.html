@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slurry — A Text Adventure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="game-header">
+      <h1 class="game-title">Slurry</h1>
+      <p class="game-subtitle">A Text Adventure of the Fens</p>
+    </header>
+    <main id="screen-creation" class="screen active">
+      <div class="form-container">
+        <h2 class="form-heading">Registration of Person</h2>
+        <p class="form-preamble">By order of the Tollmaster's Office, all persons newly arrived or otherwise unregistered within the bounds of Greylock Wharf are required to furnish the following particulars. Failure to comply is an offence.</p>
+
+        <form id="creation-form" novalidate>
+
+          <!-- Name -->
+          <fieldset class="field-group">
+            <legend>I. Personal Details</legend>
+            <div class="field">
+              <label for="char-name">Full Name <span class="required">*</span></label>
+              <input type="text" id="char-name" name="name" placeholder="As known to the constabulary" maxlength="40" autocomplete="off" />
+            </div>
+          </fieldset>
+
+          <!-- Background -->
+          <fieldset class="field-group">
+            <legend>II. Background</legend>
+
+            <div class="field">
+              <label for="char-origin">Are you from these parts, or did the road bring you here?</label>
+              <select id="char-origin" name="origin">
+                <option value="">— Select —</option>
+                <option value="local">Local — born and bred in the Fens</option>
+                <option value="outsider">Outsider — arrived by road, canal, or misfortune</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="char-occupation">How have you kept yourself fed?</label>
+              <select id="char-occupation" name="occupation">
+                <option value="">— Select —</option>
+                <option value="canal_worker">Canal Worker / Bargeman</option>
+                <option value="trader">Trader / Fence</option>
+                <option value="layabout">Layabout / Opportunist</option>
+                <option value="soldier">Former Soldier</option>
+                <option value="clerk">Clerk or Scribe</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="char-weapon">What do you keep close when the night turns ugly?</label>
+              <select id="char-weapon" name="weapon">
+                <option value="">— Select —</option>
+                <option value="fists">Fists — brutal, zero subtlety</option>
+                <option value="knife">Knife — fast, concealable</option>
+                <option value="cosh">Cosh / Club — blunt persuasion</option>
+                <option value="silver_tongue">Silver Tongue — no weapon, just words</option>
+                <option value="improvised">Something Improvised — whatever's to hand</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="char-past">There's something on your conscience. What is it?</label>
+              <select id="char-past" name="pastDecision">
+                <option value="">— Select —</option>
+                <option value="left_behind">I left someone behind to save myself.</option>
+                <option value="gave_away">I gave away something I needed to someone worse off.</option>
+                <option value="took_credit">I took credit for something I didn't do.</option>
+                <option value="nothing">I've done nothing worth confessing. Yet.</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <!-- Stat Allocation -->
+          <fieldset class="field-group stats-group">
+            <legend>III. Attributes</legend>
+            <p class="stats-instruction"><strong id="points-remaining">18</strong> points remaining to distribute. Each attribute must sit between 2 and 8.</p>
+
+            <div class="stats-grid">
+              <div class="stat-row" data-stat="brawn">
+                <div class="stat-info">
+                  <span class="stat-name">Brawn</span>
+                  <span class="stat-desc">Physical strength, intimidation, heavy labour</span>
+                </div>
+                <div class="stat-controls">
+                  <button type="button" class="stat-btn stat-dec" aria-label="Decrease Brawn">−</button>
+                  <span class="stat-value">2</span>
+                  <button type="button" class="stat-btn stat-inc" aria-label="Increase Brawn">+</button>
+                </div>
+              </div>
+
+              <div class="stat-row" data-stat="graft">
+                <div class="stat-info">
+                  <span class="stat-name">Graft</span>
+                  <span class="stat-desc">Dexterity, sleight of hand, tools and craft</span>
+                </div>
+                <div class="stat-controls">
+                  <button type="button" class="stat-btn stat-dec" aria-label="Decrease Graft">−</button>
+                  <span class="stat-value">2</span>
+                  <button type="button" class="stat-btn stat-inc" aria-label="Increase Graft">+</button>
+                </div>
+              </div>
+
+              <div class="stat-row" data-stat="wit">
+                <div class="stat-info">
+                  <span class="stat-name">Wit</span>
+                  <span class="stat-desc">Intelligence, reading, persuasion through reason</span>
+                </div>
+                <div class="stat-controls">
+                  <button type="button" class="stat-btn stat-dec" aria-label="Decrease Wit">−</button>
+                  <span class="stat-value">2</span>
+                  <button type="button" class="stat-btn stat-inc" aria-label="Increase Wit">+</button>
+                </div>
+              </div>
+
+              <div class="stat-row" data-stat="brass">
+                <div class="stat-info">
+                  <span class="stat-name">Brass</span>
+                  <span class="stat-desc">Charisma, social confidence, charm and bluster</span>
+                </div>
+                <div class="stat-controls">
+                  <button type="button" class="stat-btn stat-dec" aria-label="Decrease Brass">−</button>
+                  <span class="stat-value">2</span>
+                  <button type="button" class="stat-btn stat-inc" aria-label="Increase Brass">+</button>
+                </div>
+              </div>
+
+              <div class="stat-row" data-stat="guts">
+                <div class="stat-info">
+                  <span class="stat-name">Guts</span>
+                  <span class="stat-desc">Courage, resilience, resistance to fear or pain</span>
+                </div>
+                <div class="stat-controls">
+                  <button type="button" class="stat-btn stat-dec" aria-label="Decrease Guts">−</button>
+                  <span class="stat-value">2</span>
+                  <button type="button" class="stat-btn stat-inc" aria-label="Increase Guts">+</button>
+                </div>
+              </div>
+
+              <div class="stat-row" data-stat="lurk">
+                <div class="stat-info">
+                  <span class="stat-name">Lurk</span>
+                  <span class="stat-desc">Stealth, awareness, knowing when to stay quiet</span>
+                </div>
+                <div class="stat-controls">
+                  <button type="button" class="stat-btn stat-dec" aria-label="Decrease Lurk">−</button>
+                  <span class="stat-value">2</span>
+                  <button type="button" class="stat-btn stat-inc" aria-label="Increase Lurk">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="points-warning" class="points-warning hidden">
+              All 30 points must be allocated before you may proceed.
+            </div>
+          </fieldset>
+
+          <div class="form-footer">
+            <button type="submit" id="submit-btn" class="submit-btn">
+              Register &amp; Enter Greylock Wharf
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <main id="screen-game" class="screen">
+      <!-- Chapter title card overlay -->
+      <div id="chapter-card" class="chapter-card hidden" aria-hidden="true">
+        <div class="chapter-card-inner">
+          <div class="chapter-card-num">Chapter I</div>
+          <div class="chapter-card-title">A Town Like Any Other</div>
+        </div>
+      </div>
+
+      <!-- Mobile stats bar -->
+      <div id="mobile-stats-bar" class="mobile-stats-bar" role="button" tabindex="0" aria-label="Toggle character sheet">
+        <span class="msb-item health-item">♥ <span id="msb-health">10</span></span>
+        <span class="msb-item coin-item">⌀ <span id="msb-coin">0</span></span>
+        <span class="msb-item rep-item">✦ <span id="msb-rep">5</span></span>
+        <span class="msb-item honour-item" id="msb-honour-label">Mixed Reputation</span>
+        <span class="msb-toggle">▲</span>
+      </div>
+
+      <div id="game-layout">
+        <div id="narrative-pane"></div>
+        <aside id="character-sheet"></aside>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
