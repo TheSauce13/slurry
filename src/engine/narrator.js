@@ -122,10 +122,10 @@ function historyContext(state) {
     .join('. ');
 }
 
-export async function generateBeatProse(beat, state) {
+export async function generateBeatProse(beat, availableOptions, state) {
   const isTollmaster = beat.id === 5;
 
-  const instruction = isTollmaster
+  const proseInstruction = isTollmaster
     ? tollmasterInstruction(state)
     : `Generate the opening scene for this beat. 2–4 paragraphs. Set the scene vividly. Do not offer choices or describe what the player does — describe the world and situation they face.`;
 
@@ -137,16 +137,46 @@ export async function generateBeatProse(beat, state) {
     ? `Location: ${beat.location}. The character has just come from: ${prevBeat.location}.`
     : `Location: ${beat.location}. This is the character's first scene in Greylock Wharf.`;
 
+  const optionsList = availableOptions
+    .map(o => `  { "id": "${o.id}", "mechanicalAction": "${o.label}" }`)
+    .join(',\n');
+
   const userPrompt = [
     `Beat ${beat.id} of 5: ${beat.name} (${beat.type})`,
     locationLine,
     `Chapter goal: The chapter ends with the player meeting the Tollmaster — a corrupt, theatrical, self-important authority figure who controls access and information in Greylock Wharf.`,
     characterContext(state),
     `History: ${historyContext(state)}`,
-    `Instruction: ${instruction}`,
+    ``,
+    `Prose instruction: ${proseInstruction}`,
+    ``,
+    `The player will be presented with these mechanical options (do not describe them in the prose):`,
+    `[\n${optionsList}\n]`,
+    ``,
+    `Return a single JSON object — no markdown, no code fences, only raw JSON:`,
+    `{`,
+    `  "prose": "<your 2-4 paragraph narrative scene>",`,
+    `  "prompt": "<one question, max 8 words, that frames the decision>",`,
+    `  "choices": [{ "id": "<mechanicalId>", "label": "<contextual label, max 6 words>" }]`,
+    `}`,
+    `Every option id must appear in choices. Labels must feel like they belong to this specific scene.`,
   ].join('\n');
 
-  return callNarrator(userPrompt);
+  const raw = await callNarrator(userPrompt);
+  if (!raw) return { prose: null, prompt: null, choiceLabels: {} };
+
+  try {
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    if (typeof parsed.prose !== 'string' || !Array.isArray(parsed.choices)) {
+      throw new Error('unexpected shape');
+    }
+    const choiceLabels = Object.fromEntries(parsed.choices.map(c => [c.id, c.label]));
+    return { prose: parsed.prose, prompt: parsed.prompt ?? null, choiceLabels };
+  } catch {
+    // JSON failed — treat the whole response as plain prose, use static labels
+    return { prose: raw, prompt: null, choiceLabels: {} };
+  }
 }
 
 export async function generateConsequenceProse(beat, option, checkResult, state) {
@@ -160,7 +190,7 @@ export async function generateConsequenceProse(beat, option, checkResult, state)
     `Beat ${beat.id} of 5: ${beat.name} (${beat.type})`,
     characterContext(state),
     `History: ${historyContext(state)}`,
-    `Player's choice: "${option.label}"`,
+    `Player's choice: "${option.label}" (mechanical id: ${option.id})`,
     `Outcome: ${outcomeLabel}`,
     `Instruction: Generate the narrative consequence of this choice and outcome. 1–2 paragraphs. Reflect the character's stats and prior decisions in the texture of the prose. Make success feel earned and failure feel instructive.`,
   ].join('\n');

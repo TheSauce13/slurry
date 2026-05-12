@@ -24,9 +24,11 @@ export async function runBeat(beatId) {
 
   updateState({ progress: { beat: beatId } });
 
-  // Fetch AI prose (with loading state), fall back to hardcoded
+  const options = getAvailableOptions(beat, getState());
+
+  // Fetch AI prose + contextual choice labels, fall back to hardcoded
   showLoading();
-  const aiProse = await generateBeatProse(beat, getState());
+  const { prose: aiProse, prompt: aiPrompt, choiceLabels } = await generateBeatProse(beat, options, getState());
   hideLoading();
 
   const paragraphs = aiProse
@@ -35,8 +37,13 @@ export async function runBeat(beatId) {
 
   await renderNarrative(paragraphs, beat.name);
 
-  const options = getAvailableOptions(beat, getState());
-  renderChoices(options, beat.prompt, (chosen) => onChoiceMade(beat, chosen));
+  // Merge AI-generated labels over the static fallbacks
+  const labelledOptions = options.map(o => ({
+    ...o,
+    label: choiceLabels[o.id] ?? o.label,
+  }));
+
+  renderChoices(labelledOptions, aiPrompt ?? beat.prompt, (chosen) => onChoiceMade(beat, chosen));
 }
 
 async function onChoiceMade(beat, option) {
