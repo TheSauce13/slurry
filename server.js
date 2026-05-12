@@ -25,10 +25,13 @@ app.post('/api/narrate', async (req, res) => {
     const message = await client.messages.create({
       model:      'claude-opus-4-5',
       max_tokens: 600,
-      system:     systemPrompt,
+      // Cache the system prompt — it's large and identical on every call
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
       messages:   [{ role: 'user', content: userPrompt }],
     });
 
+    const usage = message.usage;
+    console.log(`[narrate] in:${usage.input_tokens} out:${usage.output_tokens} cache_read:${usage.cache_read_input_tokens ?? 0} cache_write:${usage.cache_creation_input_tokens ?? 0}`);
     res.json({ text: message.content[0].text });
   } catch (err) {
     console.error('[/api/narrate]', err.message);
