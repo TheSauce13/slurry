@@ -8,6 +8,7 @@ export const BEATS = [
     id: 1,
     name: 'Arrival / Orientation',
     type: 'world-building',
+    location: 'The Wharf — the canal docks and waterfront',
     prose: [
       'Greylock Wharf announces itself through the nose before the eyes have a chance to adjust. The Slurry is low today, its black surface near-still, a morning mist sitting on it like a lid on a pot of something you\'d rather not identify. Barges line the near bank, most of them half-loaded or long-abandoned, their hulls patched and re-patched until the original timber is a philosophical question.',
       'The wharf is busy in the manner of a thing that has been busy so long it no longer notices. Canal workers with eel-grey faces haul sacking from a flatboat. A pair of constables stand outside a grain chandler\'s, not doing anything in particular with great conviction. Somewhere up the lane, a broadsheet seller is hollering about the Tollmaster\'s latest proclamation, though the words are lost in the general din.',
@@ -61,6 +62,7 @@ export const BEATS = [
     id: 2,
     name: 'Someone Wants Something',
     type: 'social',
+    location: 'The Wharf — the main waterfront, near the dock entrance',
     prose: [
       'You are barely twenty yards into the wharf proper when he finds you. A man — thin in the way that is not elegant, with a coat two sizes too large and eyes doing too much work — steps from between two bollards and into your path with the practised ease of someone who has been waiting.',
       '"New face," he says. It is not a question. "Word of advice, gratis: the Tollmaster\'s office levies a registration fee on newcomers. Coin up front or they hold you at the guildhall gate until someone vouches. I can vouch." He pauses. "For a consideration."',
@@ -122,6 +124,7 @@ export const BEATS = [
     id: 3,
     name: 'The Slurry Moment',
     type: 'survival',
+    location: 'The bridge over the south inlet — a narrow canal crossing between the docks and the town centre',
     prose: [
       'The bridge across the south inlet is narrow, worn to a shine in the middle, and busy with foot traffic that has learned not to look down. You are halfway across when it happens.',
       'A barge nudges the bridge stanchion — badly loaded, no steerer visible on deck — and the impact sends a crate sliding off the near gunwale. The crate goes into the Slurry. So does the boy who was sitting on it.',
@@ -182,6 +185,7 @@ export const BEATS = [
     id: 4,
     name: "The Tollmaster's Threshold",
     type: 'gatekeeper',
+    location: 'The Guildhouse — the entrance hall and secretary\'s desk',
     prose: [
       'The old guildhall squats at the centre of Greylock Wharf like a man who has decided he owns the table. Its stonework is serious, its windows tall and narrow as accusations, and the Tollmaster\'s seal — a set of scales with a coin on each side — has been cut into the lintel with the permanence of something that expects to be obeyed.',
       'The entrance is guarded by a secretary. She sits at a desk in the outer hall with the particular stillness of someone who has processed a great many people and found all of them wanting. A ledger is open in front of her. A pen is in her hand. She does not look up when you enter.',
@@ -238,6 +242,7 @@ export const BEATS = [
     id: 5,
     name: 'The Audience',
     type: 'climax',
+    location: 'The Guildhouse — the Tollmaster\'s private office',
     prose: [
       'The Tollmaster is smaller than expected and more theatrical than necessary. He stands behind a desk the size of a small barge, flanked by ledgers, framed proclamations, and a portrait of himself that has been commissioned with the specific instruction that he appear taller. He wears a coat of such determined impressiveness that it has almost succeeded.',
       '"Sit," he says, without looking up from whatever he is reading. "Or don\'t. People\'s relationship to furniture tells me a great deal." He sets down his document. He looks at you.',

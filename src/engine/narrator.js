@@ -1,9 +1,13 @@
 import { getAlignmentLabel } from '../character/alignment.js';
+import { BEATS } from './beats.js';
 
 const SYSTEM_PROMPT = `You are the narrator of Slurry — a dark comedy text adventure set in a nightmarish Victorian-industrial vision of the Fens of England.
 
 TONE
 Survival dark comedy — grim, wry, oddly human. Literary fiction prose, not game description. No fourth wall breaks. No offering choices — the engine handles that. Return only the narrative passage (2–4 paragraphs unless instructed otherwise).
+
+PROSE STYLE
+Write in plain, declarative sentences. Avoid similes — do not write "X like a Y". Favour the specific and concrete over the figurative. Understatement over melodrama. When something is grim, state it plainly; do not dress it in metaphor. The world should feel observed, not described.
 
 THE WORLD
 The story takes place in a defeated nation — a country recently beaten in war by a more powerful nation across the sea. The victors never occupied the land, but their revolutionary ideas (liberty, reason, the death of kings) have begun to spread amongst the population, particularly the working class and the intellectuals. The ruling classes — Church, Academy, Crown loyalists — are quietly terrified. The people are bitter, poor, and prone to sudden loyalties.
@@ -69,7 +73,8 @@ FORBIDDEN
 - Do not invent new factions or political organisations
 - Do not make the supernatural literal — keep it ambiguous folk belief
 - Do not use modern idiom, anachronistic slang, or American vocabulary
-- Do not reference the player making a "choice" or the game's mechanics`;
+- Do not reference the player making a "choice" or the game's mechanics
+- Do not reference real nations, cities, historical figures, or cultural proper nouns. This is not England — it is a fictional country. Do not write "France", "French", "London", "the Crown", "Parliament", or any other real-world proper noun. The foreign revolutionary nation is referred to only as "the Republic" or "across the sea". The local country and its institutions are unnamed unless specified in this bible.`;
 
 
 const FALLBACK = 'The fog thickens. Something went wrong in the telling.';
@@ -124,8 +129,17 @@ export async function generateBeatProse(beat, state) {
     ? tollmasterInstruction(state)
     : `Generate the opening scene for this beat. 2–4 paragraphs. Set the scene vividly. Do not offer choices or describe what the player does — describe the world and situation they face.`;
 
+  const prevBeat = state.history.length
+    ? BEATS.find(b => b.id === state.history[state.history.length - 1].beat)
+    : null;
+
+  const locationLine = prevBeat
+    ? `Location: ${beat.location}. The character has just come from: ${prevBeat.location}.`
+    : `Location: ${beat.location}. This is the character's first scene in Greylock Wharf.`;
+
   const userPrompt = [
     `Beat ${beat.id} of 5: ${beat.name} (${beat.type})`,
+    locationLine,
     `Chapter goal: The chapter ends with the player meeting the Tollmaster — a corrupt, theatrical, self-important authority figure who controls access and information in Greylock Wharf.`,
     characterContext(state),
     `History: ${historyContext(state)}`,
