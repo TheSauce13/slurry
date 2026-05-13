@@ -118,8 +118,10 @@ function characterContext(state) {
 function historyContext(state) {
   if (!state.history.length) return 'No prior beats — this is the opening scene.';
   return state.history
-    .map(h => `Beat ${h.beat}: chose "${h.choice}", result was ${h.outcome}`)
-    .join('. ');
+    .map(h => h.summary
+      ? `Beat ${h.beat} (${BEATS.find(b => b.id === h.beat)?.location ?? 'unknown location'}): ${h.summary}`
+      : `Beat ${h.beat}: chose "${h.choice}", result was ${h.outcome}`)
+    .join(' ');
 }
 
 export async function generateBeatProse(beat, availableOptions, state) {
@@ -188,14 +190,31 @@ export async function generateConsequenceProse(beat, option, checkResult, state)
 
   const userPrompt = [
     `Beat ${beat.id} of 5: ${beat.name} (${beat.type})`,
+    `Location: ${beat.location}`,
     characterContext(state),
     `History: ${historyContext(state)}`,
     `Player's choice: "${option.label}" (mechanical id: ${option.id})`,
     `Outcome: ${outcomeLabel}`,
-    `Instruction: Generate the narrative consequence of this choice and outcome. 1–2 paragraphs. Reflect the character's stats and prior decisions in the texture of the prose. Make success feel earned and failure feel instructive.`,
+    ``,
+    `Return a single JSON object — no markdown, no code fences, only raw JSON:`,
+    `{`,
+    `  "prose": "<1-2 paragraphs of consequence narrative>",`,
+    `  "summary": "<1 sentence, past tense, factual: who was encountered, what happened, what was decided. Max 25 words. No character name — use 'The character' or 'they'.>"`,
+    `}`,
+    `The summary is for internal continuity tracking, not shown to the player. Make it precise and factual.`,
   ].join('\n');
 
-  return callNarrator(userPrompt);
+  const raw = await callNarrator(userPrompt);
+  if (!raw) return { prose: null, summary: null };
+
+  try {
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    if (typeof parsed.prose !== 'string') throw new Error('unexpected shape');
+    return { prose: parsed.prose, summary: parsed.summary ?? null };
+  } catch {
+    return { prose: raw, summary: null };
+  }
 }
 
 export async function generateChapterSummary(state) {

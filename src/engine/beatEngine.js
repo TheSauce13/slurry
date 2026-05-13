@@ -87,10 +87,20 @@ async function onChoiceMade(beat, option) {
 
   if (checkResult) await renderCheckResult(checkResult.success);
 
-  // Fetch AI consequence prose, fall back to hardcoded
+  // Fetch AI consequence prose + beat summary, fall back to hardcoded
   showLoading();
-  const aiConsequence = await generateConsequenceProse(beat, option, checkResult, getState());
+  const { prose: aiConsequence, summary } = await generateConsequenceProse(beat, option, checkResult, getState());
   hideLoading();
+
+  // Store the AI summary on the history entry for future beat context
+  if (summary) {
+    const history = getState().history;
+    updateState({
+      history: history.map((h, i) =>
+        i === history.length - 1 ? { ...h, summary } : h
+      ),
+    });
+  }
 
   await renderConsequence(aiConsequence ?? outcome.prose);
 
