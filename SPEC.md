@@ -528,12 +528,151 @@ This project is built one loop at a time. Each loop has a single clear goal, a d
 
 | Loop | Goal |
 |---|---|
-| Loop 11 | Chapter 2 beats — deeper faction system, Tollmaster consequences |
-| Loop 12 | Persistent save via localStorage — resume across sessions |
-| Loop 13 | AI-generated character portrait using image API |
-| Loop 14 | Faction reputation system — separate tracks for 3+ factions |
-| Loop 15 | Multiple endings to Chapter 1 based on accumulated state |
-| Loop 16 | Broadsheet interstitials — flavour text between chapters mimicking a newspaper |
+| Loop 11 | Coin gating + earning mechanic |
+| Loop 12 | Objective + location display on sidebar |
+| Loop 13 | In-session history log |
+| Loop 14 | End-of-chapter decisions summary |
+| Loop 15 | Beat structure rewrite — flexible beat types, decision tree, Tollmaster locked to Beat 5 |
+| Loop 16 | Playthrough logging — server-side transcript saving for proofreading |
+| Loop 17 | Stat change animations on sidebar |
+| Loop 18 | World Bible tooltips — clickable proper nouns linking to bible entries |
+| Loop 19 | Chapter 2 beats — deeper faction system, Tollmaster consequences |
+| Loop 20 | Persistent save via localStorage — resume across sessions |
+| Loop 21 | AI-generated character portrait using image API |
+| Loop 22 | Faction reputation system — separate tracks for 3+ factions |
+| Loop 23 | Multiple endings to Chapter 1 based on accumulated state |
+| Loop 24 | Broadsheet interstitials — flavour text between chapters mimicking a newspaper |
+
+---
+
+### Loop 11: Coin Gating + Earning Mechanic
+**Goal:** Make coin a meaningful constraint. Options that cost more than the player has should be unavailable. Add a simple earning mechanic accessible from the sidebar.
+
+**Deliverables:**
+- Options with a `cost` that exceeds current coin are greyed out and unselectable in the choice panel
+- Sidebar includes a small "Work" interaction — a clickable element that triggers a short beat (one AI-generated line + outcome) yielding 1–2 coin. Thematically appropriate to current location (dock labouring, running an errand, etc.)
+- Earning mechanic has a per-beat usage limit (once per beat) so it can't be farmed indefinitely
+- Cost label on unavailable options reads "Insufficient funds" rather than showing the raw number
+
+**Validation:**
+- ✅ A player with 0 coin cannot select a 2-coin option
+- ✅ Earning mechanic yields coin and triggers a short narrative line
+- ✅ Cannot earn coin more than once per beat
+
+---
+
+### Loop 12: Objective + Location Display
+**Goal:** Surface where the player is and what they're trying to do, so the start of each run feels less disorienting.
+
+**Deliverables:**
+- Sidebar shows current location, updated each beat (e.g. *Greylock Wharf — Docks*, *Greylock Wharf — Guildhall Entrance*)
+- Sidebar shows a one-line active objective, updated each beat (e.g. *"Get through the Wharf"*, *"Reach the Tollmaster"*)
+- Location and objective defined in `beats.js` alongside the existing `location` field
+- Both display with the same Victorian typographic treatment as the rest of the sheet
+
+**Validation:**
+- ✅ Location updates correctly between beats
+- ✅ Objective is legible and accurate to the current beat's goal
+- ✅ Neither location nor objective feels out of tone with the world
+
+---
+
+### Loop 13: In-Session History Log
+**Goal:** Let the player scroll back through what happened in the current run without leaving the game.
+
+**Deliverables:**
+- Collapsible history panel accessible from the sidebar (toggle button)
+- Each beat appends an entry: beat name, the AI-generated consequence prose summary, and the choice made
+- History is read-only — no interaction, just a log
+- Visually distinct from the main narrative pane (slightly dimmer, smaller text)
+
+**Validation:**
+- ✅ History panel shows all completed beats in order
+- ✅ Opening history panel does not disrupt the current narrative
+- ✅ Panel is scrollable if history is long
+
+---
+
+### Loop 14: End-of-Chapter Decisions Summary
+**Goal:** Add a structured mechanical recap alongside the existing AI elegiac summary — what happened, what was chosen, what it cost.
+
+**Deliverables:**
+- After the AI chapter summary, render a structured "Ledger" section
+- Each beat listed with: beat name, choice made, outcome (success/failure/neutral), stat and resource changes
+- Visually formatted as a Victorian ledger — tabular, terse, factual
+- Complementary to the AI summary, not a replacement
+
+**Validation:**
+- ✅ Every beat appears in the ledger
+- ✅ Resource changes are accurate
+- ✅ Ledger renders after the AI prose, not before
+
+---
+
+### Loop 15: Beat Structure Rewrite
+**Goal:** Replace the hardcoded Beat 3 scenario with a flexible beat-type system. Prevent the Tollmaster from appearing outside Beat 5. Lay groundwork for a proper decision tree.
+
+**Deliverables:**
+- Beats 1–4 defined as *scene types* with example anchors, not fixed scenarios. The AI generates the specific instance each run
+- Beat 3 (currently always the boy-in-canal) becomes a *Slurry Moment* type — the boy scenario is one example anchor the AI may draw on, not the locked outcome
+- Beat 5 is explicitly locked to the Tollmaster audience — the AI cannot introduce him earlier
+- System prompt updated: "The Tollmaster appears only in Beat 5. Do not introduce him, reference him as present, or stage a meeting with him before Beat 5."
+- Beats carry a `scenetype` field replacing the fixed `prose` array; static fallback prose updated to match
+
+**Validation:**
+- ✅ Beat 3 generates different survival scenarios across runs
+- ✅ Tollmaster does not appear in Beats 1–4 prose
+- ✅ Static fallback prose still loads if API fails
+
+---
+
+### Loop 16: Playthrough Logging
+**Goal:** Save a plaintext transcript of each completed run server-side for proofreading and review, without the player having to copy anything.
+
+**Deliverables:**
+- On chapter completion, the server writes a timestamped log file to a `logs/` directory
+- Log contains: character details, each beat's AI prose, the choice made, outcome, and resource state after each beat
+- Log is plaintext, human-readable
+- `logs/` is gitignored
+- No player-facing UI — this is a backend dev tool only
+
+**Validation:**
+- ✅ Completing a chapter creates a new file in `logs/`
+- ✅ Log is readable and contains full prose + mechanical record
+- ✅ Log files do not appear in git
+
+---
+
+### Loop 17: Stat Change Animations
+**Goal:** Make the sidebar feel alive — brief visual feedback when any tracked value changes.
+
+**Deliverables:**
+- When health, coin, reputation, or honour changes, the relevant value in the sidebar pulses or highlights briefly
+- Positive changes (gain) animate in one colour, negative (loss) in another — consistent with the existing palette
+- Animation is subtle: 600–800ms, does not interrupt reading
+- Works on both desktop sidebar and mobile stats bar
+
+**Validation:**
+- ✅ Gaining coin triggers a visible flash on the coin value
+- ✅ Losing health triggers a visible flash on the health value
+- ✅ Animation does not fire on initial render
+
+---
+
+### Loop 18: World Bible Tooltips
+**Goal:** Let players click on named characters and locations in the prose to see a brief bible entry.
+
+**Deliverables:**
+- Prose renderer detects canon proper nouns (character names, location names from the world bible) and wraps them in a clickable `<span>`
+- Clicking opens a small overlay/tooltip with the character or location's bible summary (2–3 sentences)
+- Bible content is hardcoded in a client-side data file — no API call
+- Tooltip is dismissable by clicking elsewhere
+- Only applies to the main narrative pane, not choice buttons
+
+**Validation:**
+- ✅ "The Tollmaster" in prose is clickable and shows his bible entry
+- ✅ "The Waders" in prose is clickable and shows its location entry
+- ✅ Tooltip does not appear for non-canon words
 
 ---
 
