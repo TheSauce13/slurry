@@ -585,11 +585,191 @@ html, body {
   cursor: default;
 }
 
+.choice-btn.unaffordable {
+  opacity: 0.3;
+  border-style: dashed;
+}
+
 .choice-cost {
   font-size: 0.72rem;
   color: var(--brass);
   margin-left: 1rem;
   flex-shrink: 0;
+}
+
+.choice-btn.unaffordable .choice-cost {
+  color: var(--muted);
+}
+
+/* ── Work mechanic ── */
+.work-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.work-btn:hover:not(:disabled) {
+  border-color: var(--brass);
+  color: var(--brass);
+}
+
+.work-btn.work-done {
+  opacity: 0.35;
+  cursor: default;
+  border-style: dashed;
+}
+
+.work-toast {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 2px solid var(--brass);
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+
+.work-toast.work-toast-fade { opacity: 0; }
+
+.work-coin {
+  font-style: normal;
+  color: var(--brass);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+
+/* ── History log ── */
+.history-toggle-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s;
+}
+
+.history-toggle-btn:hover { color: var(--brass); }
+
+.history-log {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-entry {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  border-left: 1px solid var(--border);
+  padding-left: 0.6rem;
+}
+
+.history-beat-name {
+  color: var(--brass);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  margin-bottom: 0.15rem;
+}
+
+.history-choice {
+  color: var(--text);
+}
+
+.history-outcome {
+  margin-left: 0.4rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history-outcome-success { color: #6a9a5a; }
+.history-outcome-failure { color: var(--accent); }
+.history-outcome-neutral { color: var(--muted); }
+
+.history-summary {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.72rem;
+}
+
+/* ── Decisions ledger ── */
+.ledger-heading {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  color: var(--brass);
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.ledger-entry {
+  border-left: 1px solid var(--border);
+  padding-left: 0.75rem;
+  font-size: 0.82rem;
+}
+
+.ledger-beat {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+
+.ledger-choice {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.ledger-choice-label { color: var(--text); }
+
+.ledger-outcome {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.ledger-outcome-success { color: #6a9a5a; }
+.ledger-outcome-failure { color: var(--accent); }
+.ledger-outcome-neutral { color: var(--muted); }
+
+.ledger-diffs {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-style: italic;
 }
 
 .choices-dismissed {

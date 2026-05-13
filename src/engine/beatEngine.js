@@ -22,7 +22,10 @@ export async function runBeat(beatId) {
   const beat = BEATS.find(b => b.id === beatId);
   if (!beat) return;
 
-  updateState({ progress: { beat: beatId } });
+  updateState({
+    progress: { beat: beatId },
+    flags:    { workedThisBeat: false },
+  });
 
   const options = getAvailableOptions(beat, getState());
 
@@ -43,11 +46,12 @@ export async function runBeat(beatId) {
     label: choiceLabels[o.id] ?? o.label,
   }));
 
-  renderChoices(labelledOptions, aiPrompt ?? beat.prompt, (chosen) => onChoiceMade(beat, chosen));
+  renderChoices(labelledOptions, aiPrompt ?? beat.prompt, getState().resources.coin, (chosen) => onChoiceMade(beat, chosen));
 }
 
 async function onChoiceMade(beat, option) {
   clearChoices();
+  const resourcesBefore = { ...getState().resources };
   applyCost(option.cost);
 
   // Stat check
@@ -71,16 +75,21 @@ async function onChoiceMade(beat, option) {
   }
 
   applyEffects(outcome.effects);
+  const resourcesAfter = { ...getState().resources };
 
   updateState({
     history: [
       ...getState().history,
       {
-        beat: beat.id,
-        choice: option.id,
-        outcome: checkResult
-          ? (checkResult.success ? 'success' : 'failure')
-          : 'neutral',
+        beat:            beat.id,
+        beatName:        beat.name,
+        choice:          option.id,
+        choiceLabel:     option.label,
+        outcome:         checkResult
+                           ? (checkResult.success ? 'success' : 'failure')
+                           : 'neutral',
+        resourcesBefore,
+        resourcesAfter,
       },
     ],
   });

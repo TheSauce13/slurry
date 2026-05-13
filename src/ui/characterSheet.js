@@ -1,4 +1,7 @@
 import { getAlignmentLabel } from '../character/alignment.js';
+import { getState } from '../state/gameState.js';
+import { canWork, workCoinAmount, doWork } from '../engine/workMechanic.js';
+import { BEATS } from '../engine/beats.js';
 
 const STAT_LABELS = {
   brawn: 'Brawn',
@@ -8,6 +11,8 @@ const STAT_LABELS = {
   guts:  'Guts',
   lurk:  'Lurk',
 };
+
+let historyOpen = false;
 
 export function renderCharacterSheet(state) {
   const el = document.getElementById('character-sheet');
@@ -31,6 +36,10 @@ export function renderCharacterSheet(state) {
     silver_tongue: 'Silver Tongue',
     improvised:    'Improvised',
   };
+
+  const workAvailable = canWork(state);
+  const coinAmount    = workCoinAmount(state);
+  const worked        = state.flags.workedThisBeat;
 
   el.innerHTML = `
     <div class="sheet-section sheet-header">
@@ -84,6 +93,56 @@ export function renderCharacterSheet(state) {
       <div class="alignment-ends">
         <span>Infamy</span><span>Honour</span>
       </div>
+    </div>
+
+    ${(workAvailable || worked) ? `
+    <div class="sheet-section">
+      <button class="work-btn${worked ? ' work-done' : ''}" id="work-btn" ${worked ? 'disabled' : ''}>
+        ${worked ? 'Work done for now' : `Find work &nbsp;+${coinAmount} coin`}
+      </button>
+    </div>
+    ` : ''}
+
+    ${state.history.length > 0 ? `
+    <div class="sheet-section sheet-history-section">
+      <button class="history-toggle-btn" id="history-toggle-btn">
+        ${historyOpen ? 'Close Journal ▲' : 'Open Journal ▼'}
+      </button>
+      ${historyOpen ? renderHistoryHTML(state.history) : ''}
+    </div>
+    ` : ''}
+  `;
+
+  // Re-attach event listeners after innerHTML rebuild
+  const workBtn = el.querySelector('#work-btn');
+  if (workBtn && !worked) {
+    workBtn.addEventListener('click', () => doWork(), { once: true });
+  }
+
+  const historyBtn = el.querySelector('#history-toggle-btn');
+  if (historyBtn) {
+    historyBtn.addEventListener('click', () => {
+      historyOpen = !historyOpen;
+      renderCharacterSheet(getState());
+    });
+  }
+}
+
+function renderHistoryHTML(history) {
+  if (!history.length) return '';
+  return `
+    <div class="history-log">
+      ${history.map(h => {
+        const beat = BEATS.find(b => b.id === h.beat);
+        const outcomeLabel = h.outcome === 'success' ? 'Success' : h.outcome === 'failure' ? 'Failure' : 'Neutral';
+        return `
+          <div class="history-entry">
+            <div class="history-beat-name">${beat?.name ?? `Beat ${h.beat}`}</div>
+            <div class="history-choice">→ ${h.choiceLabel ?? h.choice} <span class="history-outcome history-outcome-${h.outcome}">${outcomeLabel}</span></div>
+            ${h.summary ? `<div class="history-summary">${h.summary}</div>` : ''}
+          </div>
+        `;
+      }).join('')}
     </div>
   `;
 }

@@ -43,9 +43,10 @@ export function defaultGameState() {
       honour:     10,
     },
     flags: {
-      beat2Ally:         false,
-      beat3Item:         null,
+      beat2Ally:          false,
+      beat3Item:          null,
       tollmasterRelation: null,
+      workedThisBeat:     false,
     },
     progress: {
       chapter:  1,

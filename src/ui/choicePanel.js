@@ -1,6 +1,6 @@
 let choiceContainer = null;
 
-export function renderChoices(options, prompt, onSelect) {
+export function renderChoices(options, prompt, currentCoin, onSelect) {
   const pane = document.getElementById('narrative-pane');
 
   choiceContainer = document.createElement('div');
@@ -15,31 +15,39 @@ export function renderChoices(options, prompt, onSelect) {
   list.className = 'choice-list';
 
   options.forEach((option, i) => {
+    const coinCost = option.cost?.coin ?? 0;
+    const unaffordable = coinCost > currentCoin;
+
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
     btn.dataset.id = option.id;
+    if (unaffordable) {
+      btn.classList.add('unaffordable');
+      btn.disabled = true;
+    }
 
     const label = document.createElement('span');
     label.className = 'choice-label';
     label.textContent = option.label;
-
     btn.appendChild(label);
 
-    if (option.cost?.coin) {
+    if (coinCost > 0) {
       const cost = document.createElement('span');
       cost.className = 'choice-cost';
-      cost.textContent = `${option.cost.coin} coin`;
+      cost.textContent = unaffordable ? 'Insufficient funds' : `${coinCost} coin`;
       btn.appendChild(cost);
     }
 
     // Stagger fade-in
     btn.style.animationDelay = `${i * 120}ms`;
 
-    btn.addEventListener('click', () => {
-      list.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-      btn.classList.add('chosen');
-      setTimeout(() => onSelect(option), 300);
-    }, { once: true });
+    if (!unaffordable) {
+      btn.addEventListener('click', () => {
+        list.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+        btn.classList.add('chosen');
+        setTimeout(() => onSelect(option), 300);
+      }, { once: true });
+    }
 
     list.appendChild(btn);
   });

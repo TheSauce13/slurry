@@ -115,6 +115,46 @@ export async function renderChapterEnd(state, aiSummary) {
     <span>Honour ${state.resources.honour}/20</span>
   `;
   pane.appendChild(snapshot);
+
+  // Decisions ledger
+  if (state.history.length) {
+    const ledgerDivider = document.createElement('div');
+    ledgerDivider.className = 'narrative-divider';
+    ledgerDivider.textContent = '— — —';
+    pane.appendChild(ledgerDivider);
+
+    const ledgerHead = document.createElement('div');
+    ledgerHead.className = 'ledger-heading';
+    ledgerHead.textContent = 'The Ledger';
+    pane.appendChild(ledgerHead);
+
+    const ledger = document.createElement('div');
+    ledger.className = 'ledger';
+    ledger.innerHTML = state.history.map(h => {
+      const before = h.resourcesBefore ?? {};
+      const after  = h.resourcesAfter  ?? {};
+      const diffs  = ['health', 'coin', 'reputation', 'honour']
+        .filter(k => before[k] !== undefined && before[k] !== after[k])
+        .map(k => {
+          const delta = after[k] - before[k];
+          const sign  = delta > 0 ? '+' : '';
+          return `${k} ${sign}${delta}`;
+        });
+      const outcomeLabel = h.outcome === 'success' ? 'Success' : h.outcome === 'failure' ? 'Failure' : 'Neutral';
+      return `
+        <div class="ledger-entry">
+          <div class="ledger-beat">${h.beatName ?? `Beat ${h.beat}`}</div>
+          <div class="ledger-choice">
+            <span class="ledger-choice-label">${h.choiceLabel ?? h.choice}</span>
+            <span class="ledger-outcome ledger-outcome-${h.outcome}">${outcomeLabel}</span>
+          </div>
+          ${diffs.length ? `<div class="ledger-diffs">${diffs.join(' · ')}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+    pane.appendChild(ledger);
+  }
+
   pane.scrollTo({ top: pane.scrollHeight, behavior: 'smooth' });
 }
 
