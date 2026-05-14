@@ -41,7 +41,18 @@ export function renderCharacterSheet(state) {
   const coinAmount    = workCoinAmount(state);
   const worked        = state.flags.workedThisBeat;
 
+  const currentBeat = state.progress.beat > 0
+    ? BEATS.find(b => b.id === state.progress.beat)
+    : null;
+
   el.innerHTML = `
+    ${currentBeat ? `
+    <div class="sheet-section sheet-location">
+      <div class="sheet-location-name">${currentBeat.location}</div>
+      <div class="sheet-objective">${currentBeat.objective}</div>
+    </div>
+    ` : ''}
+
     <div class="sheet-section sheet-header">
       <div class="sheet-title">Character</div>
       <div class="sheet-name">${character.name || '—'}</div>

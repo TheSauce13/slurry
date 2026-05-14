@@ -74,6 +74,7 @@ FORBIDDEN
 - Do not make the supernatural literal — keep it ambiguous folk belief
 - Do not use modern idiom, anachronistic slang, or American vocabulary
 - Do not reference the player making a "choice" or the game's mechanics
+- The Tollmaster appears only in Beat 5. Do not introduce him, reference him as present, or stage a meeting with him before Beat 5.
 - Do not reference real nations, cities, historical figures, or cultural proper nouns. This is not England — it is a fictional country. Do not write "France", "French", "London", "the Crown", "Parliament", or any other real-world proper noun. The foreign revolutionary nation is referred to only as "the Republic" or "across the sea". The local country and its institutions are unnamed unless specified in this bible.`;
 
 
@@ -127,10 +128,6 @@ function historyContext(state) {
 export async function generateBeatProse(beat, availableOptions, state) {
   const isTollmaster = beat.id === 5;
 
-  const proseInstruction = isTollmaster
-    ? tollmasterInstruction(state)
-    : `Generate the opening scene for this beat. 2–4 paragraphs. Set the scene vividly. Do not offer choices or describe what the player does — describe the world and situation they face.`;
-
   const prevBeat = state.history.length
     ? BEATS.find(b => b.id === state.history[state.history.length - 1].beat)
     : null;
@@ -139,6 +136,10 @@ export async function generateBeatProse(beat, availableOptions, state) {
     ? `Location: ${beat.location}. The character has just come from: ${prevBeat.location}.`
     : `Location: ${beat.location}. This is the character's first scene in Greylock Wharf.`;
 
+  const proseInstruction = isTollmaster
+    ? tollmasterInstruction(state)
+    : buildBeatInstruction(beat);
+
   const optionsList = availableOptions
     .map(o => `  { "id": "${o.id}", "mechanicalAction": "${o.label}" }`)
     .join(',\n');
@@ -146,11 +147,11 @@ export async function generateBeatProse(beat, availableOptions, state) {
   const userPrompt = [
     `Beat ${beat.id} of 5: ${beat.name} (${beat.type})`,
     locationLine,
-    `Chapter goal: The chapter ends with the player meeting the Tollmaster — a corrupt, theatrical, self-important authority figure who controls access and information in Greylock Wharf.`,
+    `Chapter goal: The chapter ends with the player meeting the Tollmaster at the Guildhouse.`,
     characterContext(state),
     `History: ${historyContext(state)}`,
     ``,
-    `Prose instruction: ${proseInstruction}`,
+    proseInstruction,
     ``,
     `The player will be presented with these mechanical options (do not describe them in the prose):`,
     `[\n${optionsList}\n]`,
@@ -236,6 +237,26 @@ export async function generateChapterSummary(state) {
   ].join('\n');
 
   return callNarrator(userPrompt);
+}
+
+function buildBeatInstruction(beat) {
+  const anchorList = beat.anchors
+    .map((a, i) => `[${String.fromCharCode(65 + i)}] ${a}`)
+    .join('\n\n');
+  const ruleList = (beat.rules ?? []).map(r => `- ${r}`).join('\n');
+
+  return [
+    `SCENE TYPE: ${beat.scenetype}`,
+    `DESCRIPTIVE FOCUS: ${beat.descriptiveFocus}`,
+    ``,
+    `ANCHOR SCENARIOS — draw inspiration from one of these; do not reproduce verbatim:`,
+    anchorList,
+    ``,
+    `SCENE RULES:`,
+    ruleList,
+    ``,
+    `Generate the opening scene for this beat. 2–4 paragraphs. Describe the world and the situation the player faces. Do not describe what the player does — describe what they encounter.`,
+  ].join('\n');
 }
 
 function tollmasterInstruction(state) {

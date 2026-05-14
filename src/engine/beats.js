@@ -1,17 +1,39 @@
-// Each option has either:
-//   checks: ['stat', ...]  → success / failure outcomes (highest stat used)
-//   checks: []             → prose / effects (single neutral outcome)
-// Cost is always deducted before the check.
+// Beat structure
+// Each beat has:
+//   scenetype        — dramatic description of what kind of scene this is
+//   objective        — one-line player goal shown in sidebar
+//   descriptiveFocus — what the AI should foreground in its prose
+//   anchors          — 2-3 example situations; AI draws from one, doesn't reproduce verbatim
+//   rules            — hard constraints passed to the AI
+//   location         — canonical location name (passed as spatial context)
+//   prose            — static fallback paragraphs if API fails
+//   prompt           — static fallback choice question if API fails
+//   options          — mechanical choices (stat checks + effects unchanged)
 
 export const BEATS = [
   {
     id: 1,
-    name: 'Arrival / Orientation',
+    name: 'Arrival',
     type: 'world-building',
     location: 'The Wharf — the canal docks and waterfront',
+    objective: 'Get your bearings of the town.',
+
+    scenetype: 'The player arrives in Greylock Wharf.',
+    descriptiveFocus: 'The docks of Greylock Wharf and its existence next to the Slurry. Early industrial, a town in a fenland region. The Slurry\'s thick gloopy nature and its necessity for life in this world.',
+    anchors: [
+      'It\'s a foggy early morning on the dock. It\'s quiet, but workers are starting to arrive and begin their day\'s work. The sound is quiet, even some local birds can be heard. The smell of fresh morning dew and damp wood of the boats are almost pleasant but interrupted by wafts of the Slurry below.',
+      'Mid morning, it\'s lightly raining — the drops smack against the thick Slurry and it doesn\'t react as water but more thick sludge. The wharf is busy with dockhands and stevedores unloading, foremen ordering people about and clerks tracking the daily goods. As lunchtime nears, local traders are setting up their wares for the lunch rush — a woman selling eels, a baker with water crust pies. The smell of fresh simple food mixed with the smells of a busy dock and the Slurry below combine to confuse the nose.',
+      'Early evening. After a rainy day the clouds have begun to break to show a low orange sunset through the red clouds, contrasting with the black sludge of the Slurry. The final barges of the day have pulled in. The smell from the Slurry is ripe at the end of the day after being churned up by a day\'s traffic. The wharf is quieting now, but noise can be heard from the nearby tavern.',
+    ],
+    rules: [
+      'Nothing too dramatic — this is the player\'s first introduction to the world.',
+      'The Tollmaster does not appear in this beat.',
+      'Locals may notice the player but do not confront them directly yet.',
+    ],
+
     prose: [
-      'Greylock Wharf announces itself through the nose before the eyes have a chance to adjust. The Slurry is low today, its black surface near-still, a morning mist sitting on it like a lid on a pot of something you\'d rather not identify. Barges line the near bank, most of them half-loaded or long-abandoned, their hulls patched and re-patched until the original timber is a philosophical question.',
-      'The wharf is busy in the manner of a thing that has been busy so long it no longer notices. Canal workers with eel-grey faces haul sacking from a flatboat. A pair of constables stand outside a grain chandler\'s, not doing anything in particular with great conviction. Somewhere up the lane, a broadsheet seller is hollering about the Tollmaster\'s latest proclamation, though the words are lost in the general din.',
+      'Greylock Wharf announces itself through the nose before the eyes have a chance to adjust. The Slurry is low today, its black surface near-still, a morning mist sitting on it like a lid on a pot of something you\'d rather not identify.',
+      'The wharf is busy in the manner of a thing that has been busy so long it no longer notices. Canal workers with eel-grey faces haul sacking from a flatboat. A pair of constables stand outside a grain chandler\'s, not doing anything in particular with great conviction.',
       'You are here. The town has not yet noticed.',
     ],
     prompt: 'How do you enter the situation?',
@@ -21,11 +43,11 @@ export const BEATS = [
         label: 'Push through openly',
         checks: ['brawn', 'brass'],
         success: {
-          prose: 'You move through the crowd with the particular energy of someone who has decided not to be stopped. Heads turn. A few step aside. A chandler\'s boy scurries out of your path and gives you a look that contains equal parts fear and professional assessment. Nobody says anything — yet. Your presence in Greylock Wharf has been noted.',
+          prose: 'You move through the crowd with the particular energy of someone who has decided not to be stopped. Heads turn. A few step aside. Nobody says anything — yet. Your presence in Greylock Wharf has been noted.',
           effects: { reputation: 1 },
         },
         failure: {
-          prose: 'You push forward, but the crowd doesn\'t part so much as absorb you. An elbow catches your side. A cart blocks the lane at the worst moment. You arrive at the far end of the wharf looking slightly rumpled and slightly lost, which is the opposite of the impression you intended. A constable\'s eyes follow you for a moment longer than is comfortable.',
+          prose: 'You push forward, but the crowd doesn\'t part so much as absorb you. An elbow catches your side. A cart blocks the lane at the worst moment. You arrive looking slightly rumpled and slightly lost, which is the opposite of the impression you intended.',
           effects: { reputation: -1 },
         },
       },
@@ -34,11 +56,11 @@ export const BEATS = [
         label: 'Observe before moving',
         checks: ['lurk', 'wit'],
         success: {
-          prose: 'You find a doorway and watch. The constables rotate clockwise on the hour. The chandler\'s boy runs messages on a fixed route. The broadsheet man\'s eyes are not fixed on his papers. Ten minutes of stillness and you have a clearer picture of the ground than most people acquire in a month of living here. You step out knowing exactly where not to go.',
+          prose: 'You find a doorway and watch. Ten minutes of stillness and you have a clearer picture of the ground than most people acquire in a month of living here. You step out knowing exactly where not to go.',
           effects: { reputation: 1 },
         },
         failure: {
-          prose: 'You wait and watch, but the wharf gives up little. The motion is too dense, the patterns too layered. You note the constables, the carts, the faces — but by the time you move, two of the constables have swapped posts and a gate you intended to use is now latched. You proceed on instinct, which is what you should have done to begin with.',
+          prose: 'You wait and watch, but the wharf gives up little. The motion is too dense, the patterns too layered. By the time you move, things have shifted and you proceed on instinct, which is what you should have done to begin with.',
           effects: {},
         },
       },
@@ -47,11 +69,11 @@ export const BEATS = [
         label: 'Find someone to talk to',
         checks: ['brass', 'wit'],
         success: {
-          prose: 'You locate the least-suspicious-looking person in your immediate vicinity — a woman repairing rope on a bollard — and offer a pleasantry. She looks at you. Then she tells you, briefly and accurately, everything you\'d want to know about getting through the wharf without incident. The Tollmaster\'s men work the south gate. The north channel is quicker but watched. She asks nothing in return, which is its own kind of warning.',
+          prose: 'You locate the least-suspicious-looking person in your immediate vicinity and offer a pleasantry. She tells you, briefly and accurately, everything you\'d want to know about getting through the wharf without incident. She asks nothing in return, which is its own kind of warning.',
           effects: { reputation: 1 },
         },
         failure: {
-          prose: 'You open a conversation with the least-suspicious-looking person on the dock. She is, it turns out, suspicious in ways that weren\'t visible from a distance. She tells you very little, charges you nothing, and watches you walk away with an expression that suggests she has already filed you somewhere in her memory under a heading you wouldn\'t choose for yourself.',
+          prose: 'You open a conversation with the least-suspicious-looking person on the dock. She turns out to be suspicious in ways that weren\'t visible from a distance. She tells you very little and watches you walk away with an expression that suggests she has already filed you somewhere unpleasant.',
           effects: {},
         },
       },
@@ -60,26 +82,118 @@ export const BEATS = [
 
   {
     id: 2,
-    name: 'Someone Wants Something',
-    type: 'social',
-    location: 'The Wharf — the main waterfront, near the dock entrance',
-    prose: [
-      'You are barely twenty yards into the wharf proper when he finds you. A man — thin in the way that is not elegant, with a coat two sizes too large and eyes doing too much work — steps from between two bollards and into your path with the practised ease of someone who has been waiting.',
-      '"New face," he says. It is not a question. "Word of advice, gratis: the Tollmaster\'s office levies a registration fee on newcomers. Coin up front or they hold you at the guildhall gate until someone vouches. I can vouch." He pauses. "For a consideration."',
-      'He may be exactly what he appears. He may be working for someone. In Greylock Wharf, the two are not mutually exclusive.',
+    name: 'The Slurry Moment',
+    type: 'survival',
+    location: 'The Wharf — the canal edge and working waterfront',
+    objective: 'React to what the Slurry throws at you.',
+
+    scenetype: 'An incident near the Slurry forces the player to act — or to choose not to.',
+    descriptiveFocus: 'The physical reality of the Slurry — its thickness, its smell, the way things disappear into it. The bleak fact of ordinary life built around something poisonous.',
+    anchors: [
+      'Dock workers gather at the wharf edge waiting for cargo. Children run messages between points on the dock, darting under the legs of the bigger working men. One child, cutting too close to the edge, loses his footing on the slick stone and goes in — swallowed immediately by the thick black water. The men nearby stop and stare. Nobody moves first.',
+      'Along the wall of the Slurry, locals without work fish for their dinner with simple lines. The water is thick and barely moves. A man\'s line snags something heavy below the surface — whatever it is pulls back. He\'s dragged forward before he can let go, boots scrabbling at the wet stone, halfway over the edge.',
+      'The morning rush is at full swing, a crane swinging a loaded cargo net out over the water. The chain gives a sound it shouldn\'t — a single bad link — and the net drops, half into the Slurry and half across the bow of a moored punt. The punt tips. A bargeman who was sleeping on it goes into the water face first.',
     ],
-    prompt: 'How do you handle this person?',
+    rules: [
+      'A person ends up in or about to go into the Slurry. This is the central situation.',
+      'The player\'s choices determine whether and how they help.',
+      'Keep the incident minor — nobody dies unless the player does nothing, and even then it stays ambiguous.',
+      'The Tollmaster does not appear in this beat.',
+    ],
+
+    prose: [
+      'The bridge across the south inlet is narrow, worn to a shine in the middle, and busy with foot traffic that has learned not to look down.',
+      'A barge nudges the bridge stanchion — badly loaded, no steerer visible on deck — and the impact sends a crate sliding off the near gunwale. The crate goes into the Slurry. So does the boy who was sitting on it.',
+      'The canal is not deep here. It is also not clean. The boy is perhaps twelve, flailing with the specific panic of someone who can swim just well enough to know they are in trouble. People on the bridge stop and watch with the paralysed attention of a crowd that has not yet decided whether this is their problem.',
+    ],
+    prompt: 'What do you do?',
+    options: [
+      {
+        id: 'physical',
+        label: 'Go in after them',
+        checks: ['brawn', 'guts'],
+        success: {
+          prose: 'You are over the rail before you have properly decided to jump. The Slurry receives you with cold indifference. It is thick, black, and tastes of things you will try to forget. You get an arm under them and haul. The person is on solid ground, coughing black water. You are soaked through and will smell of the canal for the rest of the day.',
+          effects: { health: -1, honour: 3 },
+        },
+        failure: {
+          prose: 'You go in. The Slurry is deeper than it looked and thicker than it should be. You manage — just — but it takes too long and costs more than it should. You haul them onto the bank and sit there for a full minute, breathing. Your coat is ruined. Something in your side aches in a way that will still ache tomorrow.',
+          effects: { health: -2, honour: 2 },
+        },
+      },
+      {
+        id: 'clever',
+        label: 'Find something to reach them with',
+        checks: ['wit', 'graft'],
+        success: {
+          prose: 'Your eye catches a mooring pole on the near bollard. You have it unshipped and extended in seconds. "Grab it." They grab it. You pull. The crowd, which had been thoroughly useless, begins to applaud.',
+          effects: { honour: 2 },
+        },
+        failure: {
+          prose: 'You spot a mooring pole and go for it — but it\'s chained, a detail you missed. By the time you\'ve found a rope instead, a dockhand does what you were trying to do. You hand back the rope. The dockhand doesn\'t say anything.',
+          effects: { honour: 1 },
+        },
+      },
+      {
+        id: 'walk',
+        label: 'Walk away',
+        checks: [],
+        prose: 'You keep moving. Behind you, eventually, other voices rise and someone does something. You do not look back. You tell yourself it resolved. It sits differently than you expected.',
+        effects: { honour: -2 },
+      },
+      {
+        id: 'call',
+        label: 'Shout for help',
+        checks: ['brass'],
+        success: {
+          prose: 'Your voice cuts through the frozen crowd. Not a shout — a command. The crowd, which had been waiting for permission, receives it. Three people are suddenly useful. The person is out of the water in under a minute. You have learned something about crowds: they are mostly waiting for someone to tell them what to do.',
+          effects: { honour: 1, reputation: 1 },
+        },
+        failure: {
+          prose: 'You shout. The crowd looks at you. Then at the water. The gap between instruction and action is long enough that a dockhand, arriving at a jog, resolves the situation before you do. The person is fine. You are not the reason.',
+          effects: { honour: 1 },
+        },
+      },
+    ],
+  },
+
+  {
+    id: 3,
+    name: 'Into the Town',
+    type: 'social',
+    location: 'Greylock Wharf — the town beyond the docks',
+    objective: 'Find out where the Tollmaster is and how to reach him.',
+
+    scenetype: 'A local encounter away from the docks — the player must read someone to get what they need.',
+    descriptiveFocus: 'The town of Greylock Wharf beyond the docks — a fenland inland port with most buildings lined along the Slurry. The wider world of the town: its commerce, its poverty, its ordinary people going about their business.',
+    anchors: [
+      'A marketplace just off the river. The smell of wares from the barges mixes with local produce — turnips, eels, celery, lettuces. There is a general malaise; the economy is not doing well and everyone can feel it. A stall-holder selling eels from a bucket watches the player with the particular attention of someone who notices newcomers for professional reasons. He knows the town. He is not unfriendly, but he is not free either.',
+      'Along the North Brink, where the more affluent buildings stand — but they are becoming more shoddy, the effects of the wider country stifling even here. Subtle signs of poverty in a place that used to have none. A clerk comes out of one of the better buildings looking harried, a ledger pressed close to his chest. He works for someone important. He clearly does not want a conversation.',
+      'Near the Waders tavern, a crowd of dock workers gathers for the first pint after work. The smell of stale beer and roasted eel comes from inside. Supplies are short and the men grow restless. In the crowd, one man is louder than the rest about the Tollmaster\'s latest levy — he has opinions, and he is not keeping them quiet.',
+    ],
+    rules: [
+      'The player must leave this beat with information about how to reach the Tollmaster.',
+      'The information can come through conversation, observation, or overhearing — but it must come.',
+      'The Tollmaster does not appear in this beat.',
+    ],
+
+    prose: [
+      'The town beyond the docks has the particular quality of a place that has been making do for long enough that making do has become the only mode it knows.',
+      'On the North Brink, the better buildings face the Slurry with the air of men refusing to acknowledge a smell. A clerk hurries out of one of them without looking up. Further along, the market is setting up with the slow efficiency of people who have done this too many times to be enthusiastic about it.',
+      'Someone here knows where to find the Tollmaster. Most people here know most things about most people. The question is what it costs to find out.',
+    ],
+    prompt: 'How do you find what you need?',
     options: [
       {
         id: 'threaten',
         label: 'Threaten or intimidate',
         checks: ['brawn', 'guts'],
         success: {
-          prose: 'You hold his gaze for three seconds longer than is comfortable. Something in your expression communicates information that renders further negotiation unnecessary. He steps back. "No offence meant," he says, and means it. He doesn\'t run, which tells you he has some pride. He does leave, which tells you he has some sense.',
+          prose: 'You make your meaning clear without raising your voice. The person in front of you decides that the information costs them nothing and gives it up quickly. You have the name of the guildhall and a rough sense of the Tollmaster\'s hours.',
           effects: { honour: -1 },
         },
         failure: {
-          prose: 'You fix him with a look intended to be intimidating. He receives it with the mild interest of a man who has been threatened by people considerably more frightening than you and is still, notably, alive. "Right," he says, as if you\'ve confirmed something. He doesn\'t leave — he just repositions, leaning against a post with the patience of someone who has nowhere better to be and knows it.',
+          prose: 'Your approach lands wrong. The person closes up, gives you something vague and probably inaccurate, and finds somewhere else to be. You have a direction. Whether it\'s the right one is another matter.',
           effects: { honour: -1, reputation: -1 },
         },
       },
@@ -89,11 +203,11 @@ export const BEATS = [
         checks: ['brass'],
         cost: { coin: 1 },
         success: {
-          prose: 'You give him one coin — less than he wanted, more than he expected. He pockets it with the speed of a man who has learned not to count in public. "Doyle," he says, by way of introduction or receipt. "I know the wharf. You need anything clarified." He produces a card that is mostly grease. You take it anyway. In a town like this, knowing someone who knows where bodies are is not nothing.',
+          prose: 'One coin, placed without ceremony. The transaction is understood on both sides. You get a clean answer: the guildhall, near the top of the Brink, you can\'t miss it. The information is worth more than you paid.',
           effects: { flag: { beat2Ally: true } },
         },
         failure: {
-          prose: 'You make your pitch with the coin already in hand. He listens. He takes it. But something in your delivery didn\'t land quite right — too eager, or not eager enough — and the transaction concludes without the warmth you\'d hoped for. "Right," he says. He pockets the money. He does not offer his name. You\'ve paid for the privilege of being tolerated, which is not the same as being helped.',
+          prose: 'The coin changes hands. What comes back is less clear than you\'d hoped — directions that might be accurate, given with the enthusiasm of someone who has taken your money and is now done with you.',
           effects: {},
         },
       },
@@ -102,81 +216,20 @@ export const BEATS = [
         label: 'Deceive or misdirect',
         checks: ['wit', 'lurk'],
         success: {
-          prose: 'You tell him you\'ve already been registered — arrived yesterday, in fact, through the south gate, got your papers signed by a Sergeant Culver or Culliver, something like that. You are pleasantly vague about the details. By the time he decides you might be lying, you are already past him and into the crowd. A useful reminder: certainty is a luxury; plausibility is a tool.',
+          prose: 'You construct a story that makes asking seem natural — an old acquaintance, a delivery, a misremembered address. It works. The person answers the question you needed answered without knowing they\'ve done it.',
           effects: { honour: -1 },
         },
         failure: {
-          prose: 'Your story has one detail too many, or perhaps one too few. His eyes don\'t change, but something behind them does. "Sergeant Culver\'s been reassigned," he says, pleasantly. "Three months ago." He doesn\'t press the point further — but he doesn\'t move, either, and when you finally extract yourself from the conversation, you have the distinct sense that something has been noted about you.',
+          prose: 'Your story has a detail that doesn\'t quite fit. Nobody calls you on it directly, but the answer you get is shorter than it should be, and the person\'s eyes have a quality of having filed something away about you.',
           effects: { honour: -1, reputation: -1 },
         },
       },
       {
         id: 'help',
-        label: 'Help them genuinely',
+        label: 'Help someone genuinely',
         checks: [],
-        prose: 'You hear him out properly. He\'s not a tout — or not only a tout. His sister works in the guildhall laundry and the week\'s wages were docked for a breakage she didn\'t cause. He wants to know if there\'s a complaints process. There isn\'t, not really, but you tell him what you do know and you say it like you mean it. He looks at you with an expression you haven\'t seen much in this town yet: gratitude. "Doyle," he says. "Remember that name."',
+        prose: 'You stop and actually listen to what\'s in front of you. The person with a problem is more use than they looked. They answer your question without you having to ask it directly, because people who feel heard tend to give things freely. The guildhall. Top of the Brink. Ask for the secretary.',
         effects: { honour: 2, flag: { beat2Ally: true } },
-      },
-    ],
-  },
-
-  {
-    id: 3,
-    name: 'The Slurry Moment',
-    type: 'survival',
-    location: 'The bridge over the south inlet — a narrow canal crossing between the docks and the town centre',
-    prose: [
-      'The bridge across the south inlet is narrow, worn to a shine in the middle, and busy with foot traffic that has learned not to look down. You are halfway across when it happens.',
-      'A barge nudges the bridge stanchion — badly loaded, no steerer visible on deck — and the impact sends a crate sliding off the near gunwale. The crate goes into the Slurry. So does the boy who was sitting on it.',
-      'The canal is not deep here. It is also not clean. The boy is perhaps twelve, flailing with the specific panic of someone who can swim just well enough to know they are in trouble. The barge drifts on. People on the bridge stop and watch with the paralysed attention of a crowd that has not yet decided whether this is their problem.',
-    ],
-    prompt: 'What do you do?',
-    options: [
-      {
-        id: 'physical',
-        label: 'Go in after him',
-        checks: ['brawn', 'guts'],
-        success: {
-          prose: 'You are over the rail before you have properly decided to jump. The Slurry receives you with cold indifference. It is thick, black, and tastes of things you will try to forget. You get an arm under the boy and haul. A dockhand finally comes to help and between you, the boy is on solid ground, coughing black water. You are soaked through and will smell of the canal for the rest of the day. The boy looks at you like you are the strangest thing that has ever happened to him.',
-          effects: { health: -1, honour: 3 },
-        },
-        failure: {
-          prose: 'You go in. The Slurry is deeper than it looked and thicker than it should be, and pulling a panicking twelve-year-old through it is harder than anticipated. You manage — just — but it takes too long and costs more than it should. You haul the boy onto the bank and sit there for a full minute, breathing. Your coat is ruined. Something in your side aches in a way that will still ache tomorrow.',
-          effects: { health: -2, honour: 2 },
-        },
-      },
-      {
-        id: 'clever',
-        label: 'Find something to reach him with',
-        checks: ['wit', 'graft'],
-        success: {
-          prose: 'Your eye catches a mooring pole on the near bollard — six feet of wood with a hook at the end. You have it unshipped and extended over the rail in seconds. "Grab it," you say, loudly and without room for misunderstanding. The boy grabs it. You pull. He scrapes up the stone facing of the bank and collapses on the planking, heaving. You return the pole. The crowd, which had been thoroughly useless up to this point, begins to applaud.',
-          effects: { honour: 2 },
-        },
-        failure: {
-          prose: 'You spot a mooring pole and go for it — but it\'s chained to the bollard, a detail you missed, and by the time you\'ve located a length of rope instead, the boy has drifted another few yards downstream. A dockhand finally does what you were trying to do, hauling the boy out with practised efficiency. You hand back the rope. The dockhand doesn\'t say anything. Neither do you.',
-          effects: { honour: 1 },
-        },
-      },
-      {
-        id: 'walk',
-        label: 'Walk away',
-        checks: [],
-        prose: 'You keep moving. Behind you, eventually, other voices rise and someone does something. You do not look back. By the time you reach the far bank the shouting has resolved into the particular tone of a near-miss rather than a tragedy. You tell yourself that. It sits differently than you expected.',
-        effects: { honour: -2 },
-      },
-      {
-        id: 'call',
-        label: 'Shout for help',
-        checks: ['brass'],
-        success: {
-          prose: 'Your voice cuts through the frozen crowd like a thing with an edge. Not a shout — a command. "You — get that pole. You — go for the chandler\'s rope. Move." The crowd, which had been waiting for permission, receives it. Three people are suddenly useful. The boy is out of the water in under a minute, coughing and alive. You have learned something about crowds: they are mostly just waiting for someone to tell them what to do.',
-          effects: { honour: 1, reputation: 1 },
-        },
-        failure: {
-          prose: 'You shout. The crowd looks at you. Then it looks at the boy. Then it looks at you again. The gap between instruction and action is long enough that you seriously consider going in yourself before a dockhand, arriving from somewhere at a jog, resolves the situation with a rope and a practiced arm. The boy is fine. You are not the reason.',
-          effects: { honour: 1 },
-        },
       },
     ],
   },
@@ -186,10 +239,24 @@ export const BEATS = [
     name: "The Tollmaster's Threshold",
     type: 'gatekeeper',
     location: 'The Guildhouse — the entrance hall and secretary\'s desk',
+    objective: 'Get through the door.',
+
+    scenetype: 'The player must get past whatever stands between them and an audience with the Tollmaster.',
+    descriptiveFocus: 'The outside and inner entrance of the Guildhouse — the tallest building in the town. An imposing window on the top floor gazes down like an eye overseeing the docks and the Slurry below.',
+    anchors: [
+      'A queue of people waiting — merchants, petitioners, someone who has been there since morning. The secretary processes them one by one from behind a high desk. Getting to the front is not the problem; being admitted is.',
+      'The front entrance is closed. A handwritten notice says appointments only. A side passage leads round to the coal delivery entrance, which appears unguarded.',
+      'A man is being turned away as the player arrives — loudly, humiliatingly. The secretary watches from the doorway. The player sees exactly what they are dealing with before they have said a word.',
+    ],
+    rules: [
+      'The beat ends with the player either inside or turned away — Beat 5 picks up from here.',
+      'The Tollmaster does not appear in this beat. He is behind the door, not at it.',
+    ],
+
     prose: [
-      'The old guildhall squats at the centre of Greylock Wharf like a man who has decided he owns the table. Its stonework is serious, its windows tall and narrow as accusations, and the Tollmaster\'s seal — a set of scales with a coin on each side — has been cut into the lintel with the permanence of something that expects to be obeyed.',
-      'The entrance is guarded by a secretary. She sits at a desk in the outer hall with the particular stillness of someone who has processed a great many people and found all of them wanting. A ledger is open in front of her. A pen is in her hand. She does not look up when you enter.',
-      '"Name and business," she says. "The Tollmaster is occupied. Appointments are by arrangement. Unregistered persons are redirected to the processing office on Chandler\'s Lane." She says all of this at a speed which suggests it has been said many times.',
+      'The old guildhall squats at the centre of Greylock Wharf. Its stonework is serious, its windows tall and narrow as accusations, and the Tollmaster\'s seal has been cut into the lintel with the permanence of something that expects to be obeyed.',
+      'The entrance is guarded by a secretary. She sits at a desk in the outer hall with the particular stillness of someone who has processed a great many people and found all of them wanting.',
+      '"Name and business," she says. "The Tollmaster is occupied. Appointments are by arrangement."',
     ],
     prompt: 'How do you get in?',
     options: [
@@ -198,11 +265,11 @@ export const BEATS = [
         label: 'Talk your way past',
         checks: ['brass'],
         success: {
-          prose: 'You tell her something true enough to be verifiable and interesting enough to be worth reporting. You do not claim urgency — urgency is for amateurs. You claim relevance. By the time you finish, she has stopped writing in her ledger and started writing something on a separate slip. She sends it through the door with a clerk. Forty seconds later the clerk returns with a different expression. "The Tollmaster will see you," she says.',
+          prose: 'You tell her something true enough to be verifiable and interesting enough to be worth reporting. By the time you finish, she has stopped writing and is writing something on a separate slip. Forty seconds later a clerk returns with a different expression. "The Tollmaster will see you."',
           effects: { reputation: 1 },
         },
         failure: {
-          prose: 'You make your case. It\'s not a bad case. She listens to it with the practised patience of someone who has heard better and worse, then returns to her ledger and writes something that is not your name. "Chandler\'s Lane," she says. You are about to press the point when a door opens behind her and a clerk emerges looking harried. In the distraction, you move past both of them. It works, which is the important thing.',
+          prose: 'You make your case. It\'s not a bad case. She listens and returns to her ledger. "Chandler\'s Lane," she says. You are about to press the point when a distraction opens a gap. You move through it. It works, which is the important thing.',
           effects: { reputation: -1 },
         },
       },
@@ -211,7 +278,7 @@ export const BEATS = [
         label: 'Offer a consideration',
         checks: [],
         cost: { coin: 2 },
-        prose: 'You place two coins on the ledger — not in her hand, which would be crude, but near enough to her pen that the gesture is legible. She looks at the coins. She looks at you. She writes something in the ledger that you suspect is not your name. A bell is rung. "A moment of the Tollmaster\'s time has become available," she says, which is the most expensive sentence you have heard today.',
+        prose: 'You place two coins on the ledger — not in her hand, which would be crude, but near enough to her pen that the gesture is legible. She looks at the coins. She looks at you. A bell is rung. "A moment of the Tollmaster\'s time has become available."',
         effects: {},
       },
       {
@@ -219,11 +286,11 @@ export const BEATS = [
         label: 'Find another way in',
         checks: ['lurk', 'graft'],
         success: {
-          prose: 'The guildhall\'s rear is connected to a service lane used for coal delivery. The back door is bolted but the bolt is old and the frame has warped. Ten minutes of patient attention and you are inside a corridor that smells of lamp oil and old paper. You follow the sound of a voice that has learned to project. You find a door. You knock on it from the inside. There is a pause. "Well," says the voice. "Come in, then."',
+          prose: 'The guildhall\'s rear connects to a service lane. The back door is bolted but the frame has warped. Ten minutes of patient attention and you are inside a corridor that smells of lamp oil. You follow the sound of a voice that has learned to project. You find a door. You knock on it from the inside. "Well," says the voice. "Come in, then."',
           effects: {},
         },
         failure: {
-          prose: 'You find the service lane, find the back door, and spend an instructive ten minutes discovering that the bolt is newer than the frame suggests. When you finally get it open, a junior clerk is standing on the other side, looking at you with the expression of someone who has been told to watch for exactly this. He does not call for the constables. He does, however, escort you to the front desk, which is arguably worse.',
+          prose: 'You find the service lane and spend an instructive ten minutes discovering that the bolt is newer than the frame suggests. When you finally get the door open, a junior clerk is standing on the other side, looking at you with the expression of someone told to watch for exactly this. He escorts you to the front desk, which is arguably worse.',
           effects: { reputation: -1 },
         },
       },
@@ -232,7 +299,7 @@ export const BEATS = [
         label: 'Use your contact',
         checks: [],
         requiresFlag: 'beat2Ally',
-        prose: '"Doyle sent me" is, it turns out, a sentence with consequences in Greylock Wharf. The secretary\'s pen stops. She looks at you properly for the first time. Something is weighed and found to be, if not in your favour, then at least not against you. She goes through the door herself. When she returns, she holds it open. "He\'s between appointments," she says. It is a distinction without much difference, but you\'ll take it.',
+        prose: '"Doyle sent me" is a sentence with consequences in Greylock Wharf. The secretary\'s pen stops. She looks at you properly for the first time. She goes through the door herself. When she returns, she holds it open. "He\'s between appointments."',
         effects: {},
       },
     ],
@@ -243,11 +310,25 @@ export const BEATS = [
     name: 'The Audience',
     type: 'climax',
     location: 'The Guildhouse — the Tollmaster\'s private office',
+    objective: 'Face the Tollmaster. Leave with a reason to keep moving.',
+
+    scenetype: 'The Tollmaster receives the player and sets the course for Chapter 2.',
+    descriptiveFocus: 'Inside the Tollmaster\'s office — the accumulated weight of his authority in a small room. Papers, ledgers, the view over the Slurry from above. Late in the day: candles being lit, the last light going.',
+    anchors: [
+      'It is night, candles burned most of the way down, a small fire in the corner providing little warmth. The walls are lined with stacks of papers and ledgers in no discernible order — a chaotic system, possibly deliberate. A large wooden desk near the back. Behind it a huge window looks down over the dock and the Slurry below. The Tollmaster stands with his back to the door, looking out, as the player enters.',
+      'Behind the desk, the Tollmaster reads through a long scroll — a ledger of the month\'s shipments. His eyes do not move from it as the player enters. He begins to speak without looking up.',
+      'As the player comes through the door a small man rushes out the other way, note in hand — a runner. He catches the player with his elbow as he passes. The Tollmaster, watching from behind his desk, beckons the player over with a wry smile.',
+    ],
+    rules: [
+      'Must happen late in the day — it has taken the character the full day to get here.',
+      'The Tollmaster must instruct the player to travel to the Isle of Eels and make contact with the Church. This is the hook for Chapter 2.',
+      'The Tollmaster is theatrical and self-important but not a fool. He has read the player already before they speak.',
+    ],
+
     prose: [
-      'The Tollmaster is smaller than expected and more theatrical than necessary. He stands behind a desk the size of a small barge, flanked by ledgers, framed proclamations, and a portrait of himself that has been commissioned with the specific instruction that he appear taller. He wears a coat of such determined impressiveness that it has almost succeeded.',
-      '"Sit," he says, without looking up from whatever he is reading. "Or don\'t. People\'s relationship to furniture tells me a great deal." He sets down his document. He looks at you.',
-      'What follows is an assessment conducted through conversation. He asks questions he already knows the answers to, then watches what you do with that knowledge. He talks about the town\'s factions — the Canal Guild, the Reformers, the Merchant Assembly — with the fluency of a man who has profited from all of them. He makes observations about your character that are uncomfortably accurate.',
-      'Finally, he leans back. "I have a simple proposition. Everyone who passes through Greylock Wharf is useful to someone. The question is whether they are useful to me before they become useful to my enemies. I would prefer the former." He pauses. "What say you?"',
+      'The Tollmaster is smaller than expected and more theatrical than necessary. He stands behind a desk the size of a small barge, flanked by ledgers, framed proclamations, and a portrait of himself that has been commissioned with the specific instruction that he appear taller.',
+      '"Sit," he says, without looking up. "Or don\'t. People\'s relationship to furniture tells me a great deal."',
+      'He asks questions he already knows the answers to, then watches what you do with that knowledge. He talks about the town\'s factions with the fluency of a man who has profited from all of them. Finally, he leans back. "I have a proposition. Everyone who passes through Greylock Wharf is useful to someone. I would prefer you be useful to me."',
     ],
     prompt: 'How do you leave this meeting?',
     options: [
@@ -255,14 +336,14 @@ export const BEATS = [
         id: 'accept',
         label: 'Accept his terms',
         checks: [],
-        prose: 'You nod — not eagerly, which he would have despised, but with the measured air of someone calculating interest. He produces a document. You sign it or something like it. "Sensible," he says, which in his vocabulary is high praise. As you leave, his secretary hands you a token — brass, embossed with the scales — that will open certain doors and close certain mouths.',
+        prose: 'You nod — not eagerly, which he would have despised, but with the measured air of someone calculating interest. He produces a document. "Sensible," he says. As you leave, his secretary hands you a brass token embossed with scales. It will open certain doors.',
         effects: { reputation: 1, tollmasterRelation: 'accepted' },
       },
       {
         id: 'refuse',
         label: 'Refuse outright',
         checks: [],
-        prose: 'You tell him no, and you tell him clearly enough that there is no useful ambiguity about it. He regards you for a moment with an expression that is more interested than offended. "Rare," he says. "Inadvisable, but rare." He waves his hand. You are dismissed. The token is not offered. The door closes behind you with a finality that is not quite a threat but knows where threats live.',
+        prose: 'You tell him no clearly enough that there is no useful ambiguity. He regards you with an expression that is more interested than offended. "Rare," he says. "Inadvisable, but rare." You are dismissed. The token is not offered.',
         effects: { reputation: -1, honour: 1, tollmasterRelation: 'refused' },
       },
       {
@@ -270,11 +351,11 @@ export const BEATS = [
         label: 'Counter-offer',
         checks: ['wit', 'brass'],
         success: {
-          prose: 'You tell him his terms are generous, which you both know means you have found them insufficient. You propose a revision — narrower in scope, more specific in benefit, with an exit clause he will never use but appreciates being offered. He listens. He makes a sound that could be disapproval and could be amusement. "Revised," he says, and reworks the document himself. What you sign is better than what he offered. He seems pleased by this. You suspect that was also the plan.',
+          prose: 'You tell him his terms are generous, which you both know means you find them insufficient. You propose a revision — narrower, more specific, with an exit clause he will never use but appreciates being offered. "Revised," he says, and reworks the document himself. What you sign is better than what he offered. He seems pleased by this.',
           effects: { reputation: 2, tollmasterRelation: 'countered' },
         },
         failure: {
-          prose: 'You make your counter. It\'s not without merit, and he examines it the way a man examines a stone he\'s considering throwing — assessing weight, trajectory, likely damage. In the end he sets it aside. "I admire the attempt," he says. "Sign here." The terms are his. You have, however, demonstrated that you are not simply obedient, which he files away for future use.',
+          prose: 'You make your counter. He examines it. In the end he sets it aside. "I admire the attempt," he says. "Sign here." The terms are his. You have, however, demonstrated that you are not simply obedient, which he files away.',
           effects: { reputation: 1, tollmasterRelation: 'accepted' },
         },
       },
@@ -283,11 +364,11 @@ export const BEATS = [
         label: 'Threaten him',
         checks: ['brawn', 'guts'],
         success: {
-          prose: 'You make clear — without raising your voice, which is the important part — that the Tollmaster\'s continued comfort depends in some measure on your goodwill. The room gets very quiet. His hand moves toward the bell on his desk and then, after a moment\'s calculation, moves away from it. "Interesting," he says, at last. He is frightened and he is furious and he is, buried under both, impressed. The terms he offers are better. So is the danger.',
+          prose: 'You make clear — without raising your voice — that the Tollmaster\'s continued comfort depends in some measure on your goodwill. The room gets very quiet. His hand moves toward the bell and then, after a calculation, moves away. "Interesting," he says. He is frightened and furious and, buried under both, impressed.',
           effects: { reputation: 1, honour: -1, tollmasterRelation: 'threatened' },
         },
         failure: {
-          prose: 'You make the threat. He listens to it. Then he rings the bell — not the small one on his desk but a larger one mounted on the wall, whose note carries through the building with the authority of long practice. Two men appear in under ten seconds. "Show our guest out," the Tollmaster says. He is not angry. That is the most frightening thing about it. "We\'ll speak again when the terms of engagement are better understood."',
+          prose: 'You make the threat. He listens. Then he rings the bell — not the small one but the large one mounted on the wall. Two men appear in under ten seconds. "Show our guest out." He is not angry. That is the most frightening thing about it.',
           effects: { reputation: -2, honour: -1, tollmasterRelation: 'refused' },
         },
       },

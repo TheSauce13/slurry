@@ -337,6 +337,27 @@ html, body {
   background: var(--canal);
 }
 
+/* ── Location + Objective ── */
+.sheet-location {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.sheet-location-name {
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.sheet-objective {
+  font-size: 0.82rem;
+  color: var(--brass);
+  font-style: italic;
+}
+
 .sheet-section {
   margin-bottom: 1.5rem;
   padding-bottom: 1.25rem;
